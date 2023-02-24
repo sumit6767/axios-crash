@@ -1,3 +1,5 @@
+//AXIOS GLOBALS
+axios.defaults.headers.common['X-Auth-Token'] = 'sumithere'
 // GET REQUEST
 function getTodos() {
   axios({
@@ -41,30 +43,91 @@ function removeTodo() {
 
 // SIMULTANEOUS DATA
 function getData() {
-  console.log('Simultaneous Request');
+  axios.all([axios.get("https://jsonplaceholder.typicode.com/todos/?_limit=5"),axios.get("https://jsonplaceholder.typicode.com/posts/?_limit=10")])
+  .then(([todo,post])=>showOutput(todo))
+  .catch(err=>console.log(err))
 }
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  const config = {
+    headers : {
+      'Content-Type':'application/json',
+      Authorization : 'djskdsikbhjkfdk',
+    }
+  }
+
+  axios.post("https://jsonplaceholder.typicode.com/todos/",{
+    body : "sumit here",
+  },headers)
+  .then(res=>showOutput(res))
+  .catch(error=>console.log(error))
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+  
+  const config = {
+    method : 'post',
+    url : "https://jsonplaceholder.typicode.com/todos/",
+    data : {
+      body : "sumit here",
+    },
+    transformResponse : axios.defaults.transformResponse.concat(data => {
+      data.body = data.body.toUpperCase();
+      return data
+    })
+  }
+
+  axios(config)
+  .then(data=>showOutput(data))
+  .catch(error=>console.log(error))
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  axios.get("https://jsonplaceholder.typicode.com/tosdos/")
+  .then(data=>showOutput(data))
+  .catch(error => {
+    if(error.response){
+      console.log(error.response.status)
+      console.log(error.response)
+
+      if(error.response.status === 404)
+      {
+        alert(`${error.response.config.url} not find`)
+      }
+    }
+  })
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
+  
+  const source = axios.CancelToken.source();
+
+  axios.get("https://jsonplaceholder.typicode.com/todos/",{
+    cancelToken : source.token,
+  })
+  .then(res => showOutput(res))
+  .catch( thrown => {
+    if(axios.isCancel(thrown)){
+      console.log(thrown.message)
+    }
+  })
+
+  if(false==false){
+    source.cancel("nhi chalana hai")
+  }
 }
 
 // INTERCEPTING REQUESTS & RESPONSES
+
+// axios.interceptors.request.use(config => {
+//   console.log(`${JSON.stringify(config)} send to ${config.url}`)
+// }, error => {
+//    console.log(error)
+// })
 
 // AXIOS INSTANCES
 
